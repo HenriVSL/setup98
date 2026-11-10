@@ -1,0 +1,115 @@
+// setup98.rc - resources of the Setup98 stub: wizard pages, icon, version. CRLF, ASCII.
+// rc runs in the kit folder: rc /r /i<brand dir> /isrc /ires /fo<obj>\setup98.res res\setup98.rc
+#include <windows.h>
+#include <commctrl.h>
+#include "ids.h"
+#include "version.h"
+#include "brand.h"
+
+IDI_SETUP ICON S98_ICON_FILE
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION S98_VERSION_RC
+ PRODUCTVERSION S98_VERSION_RC
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS VOS__WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", S98_COMPANY
+            VALUE "FileDescription", S98_DESC
+            VALUE "FileVersion", S98_VERSION_STR
+            VALUE "InternalName", "setup98"
+            VALUE "OriginalFilename", "setup98.exe"
+            VALUE "ProductName", S98_PRODUCT
+            VALUE "ProductVersion", S98_VERSION_STR
+            VALUE "Comments", "Setup98 " S98_VERSION_STR " installer engine"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+IDD_WELCOME DIALOG 0, 0, 317, 160
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDI_SETUP, -1, 7, 7, 20, 20
+    LTEXT           "", IDC_TITLE, 40, 9, 270, 12
+    LTEXT           "", IDC_W_DESC, 40, 28, 270, 48
+    LTEXT           "", IDC_W_STATUS, 40, 82, 270, 50
+    LTEXT           "Click Next to continue, or Cancel to quit Setup.", -1, 40, 140, 270, 10
+END
+
+IDD_LICENSE DIALOG 0, 0, 317, 160
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "License", IDC_TITLE, 7, 4, 300, 12
+    LTEXT           "", IDC_L_INTRO, 7, 17, 303, 10
+    EDITTEXT        IDC_L_TEXT, 7, 29, 303, 110, ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL | WS_VSCROLL | WS_TABSTOP
+    AUTOCHECKBOX    "I &accept the license agreement", IDC_L_AGREE, 7, 145, 250, 10, WS_TABSTOP
+END
+
+IDD_FOLDER DIALOG 0, 0, 317, 160
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDI_SETUP, -1, 7, 7, 20, 20
+    LTEXT           "Folder and options", IDC_TITLE, 40, 9, 270, 12
+    LTEXT           "", IDC_F_LABEL, 40, 28, 270, 8
+    EDITTEXT        IDC_F_DIR, 40, 40, 208, 13, ES_AUTOHSCROLL
+    PUSHBUTTON      "B&rowse...", IDC_F_BROWSE, 254, 39, 56, 14
+    LTEXT           "", IDC_F_SPACE, 40, 57, 270, 8
+    LTEXT           "", IDC_F_NOTE, 40, 68, 270, 18
+    GROUPBOX        "Options", IDC_F_GROUP, 40, 88, 270, 54
+    AUTOCHECKBOX    "Create a &Start menu shortcut", IDC_F_START, 48, 100, 250, 10, WS_TABSTOP
+    AUTOCHECKBOX    "Create a &desktop shortcut", IDC_F_DESK, 48, 113, 250, 10, WS_TABSTOP
+    AUTOCHECKBOX    "", IDC_F_CTX, 48, 126, 250, 10, WS_TABSTOP
+END
+
+IDD_TYPES DIALOG 0, 0, 317, 160
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "File types", IDC_TITLE, 7, 4, 300, 12
+    LTEXT           "", IDC_T_INTRO, 7, 17, 303, 10
+    PUSHBUTTON      "&Defaults", IDC_T_DEFAULTS, 7, 141, 56, 14
+    PUSHBUTTON      "&Clear all", IDC_T_NONE, 68, 141, 56, 14
+END
+
+IDD_PROGRESS DIALOG 0, 0, 317, 160
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDI_SETUP, -1, 7, 7, 20, 20
+    LTEXT           "Installing", IDC_TITLE, 40, 9, 270, 12
+    LTEXT           "Please wait...", IDC_P_TEXT, 40, 40, 270, 10
+    CONTROL         "", IDC_P_BAR, "msctls_progress32", WS_BORDER, 40, 54, 270, 12
+END
+
+IDD_FINISH DIALOG 0, 0, 317, 160
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDI_SETUP, -1, 7, 7, 20, 20
+    LTEXT           "", IDC_TITLE, 40, 9, 270, 12
+    LTEXT           "", IDC_D_TEXT, 40, 28, 270, 76
+    AUTOCHECKBOX    "&Start now", IDC_D_RUN, 40, 108, 250, 10, WS_TABSTOP
+    AUTOCHECKBOX    "&View the readme", IDC_D_README, 40, 121, 250, 10, WS_TABSTOP
+    AUTOCHECKBOX    "&Restart Windows now", IDC_D_REBOOT, 40, 108, 250, 10, WS_TABSTOP
+    LTEXT           "Click Finish to close Setup.", -1, 40, 140, 270, 10
+END

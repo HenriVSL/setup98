@@ -1,0 +1,14 @@
+Setup98 changes
+===============
+
+1.0 (2026-11-10)
+- First release: generic installer kit made from the Pica 1.0 installer (dev/editor/setup).
+- setup98.exe stub (VC6): wizard (Welcome, License, Folder and options, File types, Installing, Finish), silent
+  mode, upgrade / repair / downgrade, disk-space and requirements checks (DirectX, Windows), running check (window
+  class/title, main exe in use), shortcuts (Start menu group, desktop, arguments), Pica-compatible file associations
+  and "Open with" menu, uninstaller with temp-copy self-delete, WININIT.INI for files in use plus RunOnce restore of
+  long file names, install record (uninst.ini), log, exit codes 0-5.
+- pack98 (VC6 and clang, byte-identical output): strict manifest validation with line numbers, patterns with * ? **,
+  several sources, as=, Keep / UserData / Generated, -check -l -t -x -m.
+- LZH1 codec (LZ77 + canonical Huffman, 64 KB window) with delta filters for BMP and WAV; CRC-32 everywhere.
+- Examples: Retro Strike, Pica (takes over a Pica 1.0 install), hello.
