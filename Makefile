@@ -1,15 +1,16 @@
-# Makefile - Setup98 kit, NMAKE (VC6). Run in M:\dev\setup98 (the Mac builds pack98 with GNUmakefile instead):
-#   ~/Documents/86box/samba/w98 build setup98              -> bin\setup98.exe (stub), bin\pack98.exe (packer),
-#                                                             bin\s98test.exe (VM test helper)
-#   ~/Documents/86box/samba/w98 build setup98 codectest    -> obj\codectest.exe (codec tests under VC6)
-#   ~/Documents/86box/samba/w98 build setup98 clean
+# Makefile - Setup98 kit, NMAKE (Visual C++ 6.0, after VCVARS32.BAT). Run in the repository root
+# (macOS / Linux build pack98 with GNUmakefile instead):
+#   nmake              -> bin\setup98.exe (stub), bin\pack98.exe (packer), bin\s98test.exe (test helper)
+#   nmake codectest    -> obj\codectest.exe (codec tests under VC6)
+#   nmake clean
 #
 # Branded stub (own icon / version strings) for one project, without touching the default build:
-#   ... build setup98 stub ICON=M:\dev\mygame\res\game.ico "PRODUCT=My Game" "DESC=My Game setup" ^
-#       OBJDIR=M:\dev\mygame\obj\stub OUT=M:\dev\mygame\dist\stub.exe
+#   nmake stub ICON=C:\dev\mygame\res\game.ico "PRODUCT=My Game" "DESC=My Game setup" ^
+#       OBJDIR=C:\dev\mygame\obj\stub OUT=C:\dev\mygame\dist\stub.exe
 # then pack with:  pack98 mygame.ini -stub <that OUT>   (or [Pack] Stub= in the manifest).
-# Point OBJDIR and OUT into your own project: the stub target then writes nothing inside M:\dev\setup98, so two
-# sessions (VM A, VM B) can build at the same time. OBJDIR's parent folder must exist (Win98 md makes one level).
+# Point OBJDIR and OUT into your own project: the stub target then writes nothing inside this folder, so several
+# projects can build stubs from one shared copy of the kit at the same time. OBJDIR's parent folder must exist
+# (Win98 md makes one level).
 
 OBJDIR = obj
 OUT = bin\setup98.exe
@@ -38,7 +39,7 @@ PACK_OBJS = $(OBJDIR)\pack98.obj $(OBJDIR)\manifest.obj $(OBJDIR)\wild.obj $(OBJ
 
 all: objdir bindir bin\setup98.exe bin\pack98.exe bin\s98test.exe
 
-# a branded stub writes only into $(OBJDIR) and $(OUT): nothing inside M:\dev\setup98 when both point elsewhere
+# a branded stub writes only into $(OBJDIR) and $(OUT): nothing inside this folder when both point elsewhere
 stub: objdir $(OUT)
 
 objdir:

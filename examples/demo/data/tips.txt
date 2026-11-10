@@ -1,0 +1,6 @@
+Uninstall asks "Also delete the demo's start counter?" because s98demo.sav exists (UserData=).
+Run the setup again to repair the installation: s98demo.ini keeps your changes.
+setup.exe /S installs silently; uninst.exe /S /PURGE removes everything.
+Open data\hello.greet: Setup registered the .greet type for this demo.
+pack98 -l setup.exe lists the files inside a setup; pack98 -t tests them.
+The installer log is in your TEMP folder: S98DESET.LOG.

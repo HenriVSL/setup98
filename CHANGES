@@ -8,6 +8,12 @@ Setup98 changes
   [Installed] DisplayVersion= in uninst.ini; the installed copy's text is shown ("Upgrade X 1.2 RC2 -> 1.2"), installs
   by 1.0 stubs show their numeric version. A final release without the key removes the RC's stored text.
 - Manifests without DisplayVersion pack to the same payload bytes as 1.0.
+- Public repository (the kit binaries are unchanged): MIT LICENSE; a self-contained example (examples/demo: a small
+  Win32 program with source, a VC6 build, data, a Keep ini, UserData and a file type) that packs from the repository
+  alone, and examples/hello.ini packs it too; `make test` needs nothing outside the repository (tests/gensample.cpp
+  writes deterministic BMP, WAV, text and incompressible sample files) and picks clang++ or g++ (CXX=); README
+  rewritten for the public with screenshots; tools/mkrelease.sh makes the binary kit zip with a README.TXT for Win98
+  users.
 
 1.0 (2026-11-10)
 - First release: generic installer kit made from the Pica 1.0 installer (dev/editor/setup).

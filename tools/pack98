@@ -1,6 +1,6 @@
 #!/bin/sh
-# tools/pack98 - run the Mac pack98, building it first if it is missing or older than its sources.
-#   ~/Documents/86box/Shared/dev/setup98/tools/pack98 <manifest.ini> [-o out.exe] [-stub stub.exe] [-check] ...
+# tools/pack98 - run the native pack98 (macOS / Linux), building it first if it is missing or older than its sources.
+#   <kit>/tools/pack98 <manifest.ini> [-o out.exe] [-stub stub.exe] [-check] ...
 # The stub defaults to bin/setup98.exe of the kit (built by VC6, shipped in the kit).
 K=$(cd "$(dirname "$0")/.." && pwd)
 make -s -C "$K" bin/pack98 >&2 || exit 1

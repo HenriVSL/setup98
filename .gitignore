@@ -6,13 +6,15 @@ out/
 *.pdb
 *.ilk
 # executables are built, except the two Win98 binaries the kit ships so that a project can pack on the Mac
-# without building the stub first (rebuild them with: w98 build setup98)
+# without building the stub first (rebuild them with nmake in the repository root)
 *.exe
 !bin/setup98.exe
 !bin/pack98.exe
 !bin/s98test.exe
+# the self-contained example's prebuilt program (built by examples/demo/src/Makefile with VC6)
+!examples/demo/s98demo.exe
 # test fixture (a text file named .exe)
 !tests/data/pk/game.exe
-# the Mac pack98 is built on demand by tools/pack98 (make)
+# the native pack98 (macOS/Linux) is built by make (tools/pack98 does it on demand)
 bin/pack98
 .DS_Store
