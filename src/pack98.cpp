@@ -603,7 +603,7 @@ int main(int argc, char** argv)
     die("internal error: canonical manifest rejected: %s", canon_err);
   if (check || g_verbose) {
     for (i = 0; i < g_nitems; i++) printf("  %s%s\n", g_items[i].name, g_items[i].keep ? "  (keep)" : "");
-    printf("%s: %s %s, %d files, ok\n", mpath, m.name, m.version, g_nitems);
+    printf("%s: %s %s, %d files, ok\n", mpath, m.name, m_shown_version(&m), g_nitems);
     if (check) return 0;
   }
 
@@ -699,7 +699,7 @@ int main(int argc, char** argv)
     pos = (u32)ftell(f);
     if (ferror(f) | fclose(f)) die("cannot write %s (disk full?)", outpath);
     if (!g_quiet)
-      printf("%s: %s %s, %d files, %u -> %u bytes (%.1f%%), stub %u, setup %u bytes\n", outpath, m.name, m.version,
+      printf("%s: %s %s, %d files, %u -> %u bytes (%.1f%%), stub %u, setup %u bytes\n", outpath, m.name, m_shown_version(&m),
              g_nitems, total_u, total_c, total_u ? 100.0 * total_c / total_u : 100.0, slen, pos);
   }
   return 0;

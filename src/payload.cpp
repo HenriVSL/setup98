@@ -363,6 +363,10 @@ int rec_save(const Record* r, const Manifest* m, const Opts* o, const char* rena
   ok = wr(h, "; Setup98 install record: what Setup installed here. The uninstaller needs it.\r\n") && wr(h, canon);
   wsprintfA(line, "[Installed]\r\nSetup98=%s\r\nVersion=%s\r\n", S98_VERSION_STR, m->version);
   ok = ok && wr(h, line);
+  if (m->display_version[0]) {
+    wsprintfA(line, "DisplayVersion=%s\r\n", m->display_version);
+    ok = ok && wr(h, line);
+  }
   s_copy(line, sizeof(line), "Dir=");
   s_cat(line, sizeof(line), o->dir);
   s_cat(line, sizeof(line), "\r\n[InstalledFiles]\r\n");

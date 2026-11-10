@@ -15,7 +15,7 @@ file is CRC-checked before anything is replaced.
 manifest.ini + your files --pack98--> setup98.exe + [manifest | compressed files | trailer] = mygame-1.0-setup.exe
 ```
 
-Setup98 1.0. For the history, see `CHANGES`. For the short "do this" guide for Claude sessions, see `AGENTS.md`.
+Setup98 1.1. For the history, see `CHANGES`. For the short "do this" guide for Claude sessions, see `AGENTS.md`.
 
 ---
 
@@ -102,6 +102,7 @@ See section 9. One `nmake` line on your VM builds a branded stub into your own p
 Id=RetroStrike
 Name=Retro Strike
 Version=1.0.2                         ; RETROSTR.EXE has no version resource
+; a release candidate would add: DisplayVersion=1.0.2 RC2 with Version=1.0.1.99 (see tests/rs-rc.ini)
 Publisher=Henri Lavikainen
 MainExe=RETROSTR.EXE
 Folder=%ProgramFiles%\Retro Strike
@@ -225,6 +226,7 @@ General syntax:
 | `Id` | **required** | Registry name: `HKLM\Software\<Id>`, `...\Uninstall\<Id>`, ProgIDs `<Id>.<ext>`, mutex names. 1-40 characters, letters, digits, `_`, `-`. Never change it between versions (that would be a different product). |
 | `Name` | **required** | Display name (wizard, shortcuts, Add/Remove). A valid file name (no `\ / : * ? " < > \|`), at most 80 characters. |
 | `Version` | **required** | `1`, `1.0`, `1.0.2` or `1.2.3.4` (each part 0-65535), or `from:<file>`: the VS_FIXEDFILEINFO file version of a packed file (an error if it has none). Used for upgrade, repair and downgrade detection and stored in the registry. |
+| `DisplayVersion` | none (= `Version`) | Free text people see instead of `Version`: wizard titles and texts, Add/Remove (`DisplayName "<Name> <DisplayVersion>"`, `DisplayVersion`), uninstall messages, the log, pack98's summary. Plain ASCII, 1-40 characters. **Comparisons still use only the numeric `Version`**, so give a release candidate a number below the final one: `Version=1.1.99.2` + `DisplayVersion=1.2 RC2`; the final `Version=1.2` then upgrades it ("Upgrade X 1.2 RC2 -> 1.2"). The default `OutFile` name uses the numeric version. (Setup98 1.1) |
 | `Publisher` | none | Add/Remove `Publisher`. |
 | `MainExe` | **required** | The program, relative to the install folder. Must be a packed `.exe`. Used for the running check, Run now, the default shortcut, the Add/Remove icon and the file-type command. |
 | `Folder` | `%ProgramFiles%\<Name>` | Default install folder: `%ProgramFiles%\...` (the registry's ProgramFilesDir), `%WinDrive%\...` (the Windows drive, e.g. `%WinDrive%\Games\X`) or an absolute `C:\...`. At most 200 characters, not a drive root. Browse appends the last folder name. |
@@ -375,8 +377,8 @@ shows the switch list.
 | `<install folder>\...` | the packed files (with their folders) |
 | `<install folder>\uninst.exe` | the uninstaller: the stub plus the manifest, no files (about 120 KB) |
 | `<install folder>\uninst.ini` | the **install record**: the canonical manifest plus `[InstalledFiles]` (kind `p` program / `k` keep, CRC, path), `[InstalledDirs]` (folders Setup created), `[InstalledLinks]` (shortcuts; `>` = a folder Setup created), `[InstalledRenames]` (see section 8). The uninstaller and the next upgrade use it. |
-| `HKLM\Software\<Id>` | `InstallDir`, `Version`, `StartMenu`, `Desktop` (DWORD choices), `Files` (program files, `;`, only when it fits in 8 KB), `StartMenuLnk`, `DesktopLnk` (first shortcut paths), plus `Types` and `ContextMenu` when the manifest has them, and `Previous\Open\|Edit\|Created` for associations |
-| `HKLM\...\CurrentVersion\Uninstall\<Id>` | `DisplayName "<Name> <Version>"`, `DisplayVersion`, `UninstallString`, `InstallLocation`, `DisplayIcon`, `NoModify`, `NoRepair`, and `Publisher`, `URLInfoAbout` when given |
+| `HKLM\Software\<Id>` | `InstallDir`, `Version` (numeric), `DisplayVersion` (only when the manifest has it), `StartMenu`, `Desktop` (DWORD choices), `Files` (program files, `;`, only when it fits in 8 KB), `StartMenuLnk`, `DesktopLnk` (first shortcut paths), plus `Types` and `ContextMenu` when the manifest has them, and `Previous\Open\|Edit\|Created` for associations |
+| `HKLM\...\CurrentVersion\Uninstall\<Id>` | `DisplayName "<Name> <shown version>"`, `DisplayVersion` (the shown version: `DisplayVersion` if set, else `Version`), `UninstallString`, `InstallLocation`, `DisplayIcon`, `NoModify`, `NoRepair`, and `Publisher`, `URLInfoAbout` when given |
 | Start menu, desktop | the shortcuts (`Programs\<Group>\<name>.lnk`, `Desktop\<name>.lnk`) |
 | `HKCR\...` | `[Types]` and `[ContextMenu]` entries (section 3) |
 | `%TEMP%\<LogName>.LOG` | the log of the last run: every file, registry change and decision (`RETROSET.LOG`, `PICASET.LOG`) |
@@ -386,8 +388,12 @@ shows the switch list.
 
 ## 7. Upgrade, repair, downgrade and uninstall rules
 
-Setup compares its version with the installed one: `HKLM\Software\<Id>\Version`, else the installed MainExe's
-version resource.
+Setup compares its numeric version with the installed one: `HKLM\Software\<Id>\Version`, else the installed
+MainExe's version resource. Texts show the installed copy's stored `DisplayVersion` (Setup98 1.1+), else its numeric
+version, so an install made by a 1.0 stub reads as before.
+
+Release candidates: `Version=1.1.99.2` + `DisplayVersion=1.2 RC2`, then the final `Version=1.2` (no `DisplayVersion`
+needed). The wizard says "Upgrade Lähiö 1.2 RC2 -> 1.2"; the final install removes the RC's stored display text.
 
 - **Fresh install**: the user picks the folder.
 - **Upgrade** (newer), **repair** (same) and **downgrade** (older; the wizard asks first, silent mode refuses with

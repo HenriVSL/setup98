@@ -98,6 +98,19 @@ static void test_versions()
   check(!ver_parse("1..2", &ms, &ls) && !ver_parse("1.2.", &ms, &ls) && !ver_parse("1.2.3.4.5", &ms, &ls) &&
         !ver_parse("v1", &ms, &ls) && !ver_parse("", &ms, &ls), "ver_parse rejects");
   check(ver_compare(0x10000, 0x20000, 0x10000, 0x10000) > 0 && ver_compare(0, 9, 1, 0) < 0, "ver_compare");
+  {
+    static Manifest m;
+    char err[300], canon[4096];
+    const char* t = "[Product]\nId=L\nName=L\nVersion=1.1.99.2\nDisplayVersion=1.2 RC2\nMainExe=l.exe\n[Files]\nFile=l.exe\n";
+    check(manifest_parse(t, (unsigned int)strlen(t), &m, MP_PACK, err, sizeof(err)), "DisplayVersion parses");
+    check(!strcmp(m_shown_version(&m), "1.2 RC2") && !strcmp(m.version, "1.1.99.2"), "shown vs numeric version");
+    check(manifest_write(&m, canon, sizeof(canon)) && strstr(canon, "Version=1.1.99.2\r\nDisplayVersion=1.2 RC2\r\n"),
+          "canonical DisplayVersion after Version");
+    t = "[Product]\nId=L\nName=L\nVersion=1.2\nMainExe=l.exe\n[Files]\nFile=l.exe\n";
+    check(manifest_parse(t, (unsigned int)strlen(t), &m, MP_PACK, err, sizeof(err)) && !strcmp(m_shown_version(&m), "1.2"),
+          "no DisplayVersion: shown = Version");
+    check(manifest_write(&m, canon, sizeof(canon)) && !strstr(canon, "DisplayVersion"), "no DisplayVersion in canonical");
+  }
 }
 
 // Pica's hand-made File types page: the generic layout must reproduce it (same coordinates)

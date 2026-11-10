@@ -20,7 +20,7 @@ static Opts g_o;
 static InstallInfo g_ii;
 static char g_caption[160];
 static int g_mode = M_FRESH;
-static char g_oldver[32];             // version replaced by this run (upgrade / repair / downgrade)
+static char g_oldver[48];             // version replaced by this run (upgrade / repair / downgrade)
 static int g_rc = RC_FAIL;
 static int g_ran;                     // inst_run was called
 static int g_cancelled;
@@ -197,7 +197,8 @@ static int compute_mode(const char* dir, char* oldver)
     p_join(dir, g_m.mainexe, exe, sizeof(exe));
     if (!file_version(exe, &ms, &ls)) return g_ii.installed && p_same(dir, g_ii.dir) ? M_REPAIR : M_FRESH;
   }
-  ver_format(ms, ls, oldver);
+  if (g_ii.installed && g_ii.have_ver && p_same(dir, g_ii.dir)) s_copy(oldver, 48, g_ii.ver);   // its shown version
+  else ver_format(ms, ls, oldver);
   c = ver_compare(ms, ls, g_m.ver_ms, g_m.ver_ls);
   return c < 0 ? M_UPGRADE : c == 0 ? M_REPAIR : M_DOWNGRADE;
 }
@@ -385,7 +386,7 @@ static int query_cancel(HWND d)
 static int ask_downgrade(HWND owner, const char* oldver)
 {
   char text[300];
-  wsprintfA(text, "A newer %s (%s) is installed. Replace it with the older version %s?", g_m.name, oldver, g_m.version);
+  wsprintfA(text, "A newer %s (%s) is installed. Replace it with the older version %s?", g_m.name, oldver, m_shown_version(&g_m));
   return msg(owner, text, MB_YESNO | MB_DEFBUTTON2 | MB_ICONQUESTION) == IDYES;
 }
 
@@ -403,10 +404,10 @@ static BOOL CALLBACK welcome_proc(HWND d, UINT m, WPARAM wp, LPARAM lp)
   switch (m) {
   case WM_INITDIALOG:
     page_init(d);
-    if (g_mode == M_UPGRADE) wsprintfA(text, "Upgrade %s %s -> %s", g_m.name, g_oldver, g_m.version);
-    else if (g_mode == M_REPAIR) wsprintfA(text, "Reinstall %s %s", g_m.name, g_m.version);
-    else if (g_mode == M_DOWNGRADE) wsprintfA(text, "Replace %s %s with %s", g_m.name, g_oldver, g_m.version);
-    else wsprintfA(text, "Welcome to %s %s Setup", g_m.name, g_m.version);
+    if (g_mode == M_UPGRADE) wsprintfA(text, "Upgrade %s %s -> %s", g_m.name, g_oldver, m_shown_version(&g_m));
+    else if (g_mode == M_REPAIR) wsprintfA(text, "Reinstall %s %s", g_m.name, m_shown_version(&g_m));
+    else if (g_mode == M_DOWNGRADE) wsprintfA(text, "Replace %s %s with %s", g_m.name, g_oldver, m_shown_version(&g_m));
+    else wsprintfA(text, "Welcome to %s %s Setup", g_m.name, m_shown_version(&g_m));
     SetDlgItemTextA(d, IDC_TITLE, text);
     if (g_m.description[0]) {
       char* p;
@@ -422,13 +423,13 @@ static BOOL CALLBACK welcome_proc(HWND d, UINT m, WPARAM wp, LPARAM lp)
     text[0] = 0;
     if (g_mode == M_UPGRADE)
       wsprintfA(text, "%s %s is installed in %s. Setup upgrades it to %s and keeps your settings and saved data.",
-                g_m.name, g_oldver, g_ii.dir, g_m.version);
+                g_m.name, g_oldver, g_ii.dir, m_shown_version(&g_m));
     else if (g_mode == M_REPAIR)
       wsprintfA(text, "%s %s is already installed in %s. Setup copies the program files again (repair) and keeps your "
-                      "settings and saved data.", g_m.name, g_m.version, g_ii.dir);
+                      "settings and saved data.", g_m.name, m_shown_version(&g_m), g_ii.dir);
     else if (g_mode == M_DOWNGRADE)
       wsprintfA(text, "A newer %s (%s) is installed in %s. Setup can replace it with the older %s; your settings are "
-                      "kept.", g_m.name, g_oldver, g_ii.dir, g_m.version);
+                      "kept.", g_m.name, g_oldver, g_ii.dir, m_shown_version(&g_m));
     else
       wsprintfA(text, "This wizard installs %s on your computer.", g_m.name);
     SetDlgItemTextA(d, IDC_W_STATUS, text);
@@ -797,8 +798,8 @@ static BOOL CALLBACK finish_proc(HWND d, UINT m, WPARAM wp, LPARAM lp)
         s_copy(title, sizeof(title), "Setup was cancelled");
         wsprintfA(text, "Nothing was changed. Run Setup again when %s is closed.", g_m.name);
       } else if (g_rc == RC_OK || g_rc == RC_REBOOT) {
-        if (g_mode == M_UPGRADE) wsprintfA(title, "%s was upgraded to %s", g_m.name, g_m.version);
-        else wsprintfA(title, "%s %s is installed", g_m.name, g_m.version);
+        if (g_mode == M_UPGRADE) wsprintfA(title, "%s was upgraded to %s", g_m.name, m_shown_version(&g_m));
+        else wsprintfA(title, "%s %s is installed", g_m.name, m_shown_version(&g_m));
         wsprintfA(text, "%s is in %s.", g_m.name, g_o.dir);
         if (g_rc == RC_REBOOT) {
           wsprintfA(text + lstrlenA(text), "\n\nSome files were in use. Windows replaces them when it restarts; start "
@@ -897,8 +898,8 @@ static int install_main()
   int rc;
   detect_install(&g_ii);
   opts_defaults(&g_o, &g_ii);
-  wsprintfA(g_caption, "%s %s Setup", g_m.name, g_m.version);
-  slog("payload %s %s, %lu files (%lu bytes); installed %d (%s, version %s)", g_m.name, g_m.version, g_pay.nfiles,
+  wsprintfA(g_caption, "%s %s Setup", g_m.name, m_shown_version(&g_m));
+  slog("payload %s %s, %lu files (%lu bytes); installed %d (%s, version %s)", g_m.name, m_shown_version(&g_m), g_pay.nfiles,
        g_pay.total_usize, g_ii.installed, g_ii.dir, g_ii.ver);
   if (g_arg_start >= 0) g_o.startmenu = g_arg_start && g_m.startmenu != OPT_OFF && g_m.nlinks;
   if (g_arg_desk >= 0) g_o.desktop = g_arg_desk && g_m.desktop != OPT_OFF && g_m.ndlinks;
@@ -932,7 +933,7 @@ static int install_main()
   if (!g_o.silent) return run_wizard();
 
   if (g_mode == M_DOWNGRADE && !g_o.force) {
-    slog("refused: %s is newer than %s (use /FORCE)", g_oldver, g_m.version);
+    slog("refused: %s is newer than %s (use /FORCE)", g_oldver, m_shown_version(&g_m));
     return RC_DOWNGRADE;
   }
   {

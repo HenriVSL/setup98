@@ -1,6 +1,14 @@
 Setup98 changes
 ===============
 
+1.1 (2026-11-10)
+- [Product] DisplayVersion=<text> (ASCII, at most 40 characters, e.g. "1.2 RC2"): shown instead of Version in the
+  wizard, Add/Remove Programs (DisplayName, DisplayVersion), uninstall messages, the log and pack98's summary.
+  Upgrade/repair/downgrade still compare only the numeric Version. Stored as HKLM\Software\<Id>\DisplayVersion and
+  [Installed] DisplayVersion= in uninst.ini; the installed copy's text is shown ("Upgrade X 1.2 RC2 -> 1.2"), installs
+  by 1.0 stubs show their numeric version. A final release without the key removes the RC's stored text.
+- Manifests without DisplayVersion pack to the same payload bytes as 1.0.
+
 1.0 (2026-11-10)
 - First release: generic installer kit made from the Pica 1.0 installer (dev/editor/setup).
 - setup98.exe stub (VC6): wizard (Welcome, License, Folder and options, File types, Installing, Finish), silent

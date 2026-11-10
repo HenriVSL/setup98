@@ -34,7 +34,7 @@ struct InstallInfo {
   char dir[MAX_PATH];
   int have_ver;
   DWORD ms, ls;
-  char ver[32];
+  char ver[48];            // shown version: stored DisplayVersion, else the numeric one
 };
 
 extern Manifest g_m;      // the manifest of this setup (payload), or of the installed copy while uninstalling

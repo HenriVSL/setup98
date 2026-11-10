@@ -82,6 +82,11 @@ void ver_format(u32 ms, u32 ls, char* out)
   else s98_fmt(out, 24, "%u.%u", ms >> 16, ms & 0xFFFF);
 }
 
+const char* m_shown_version(const Manifest* m)
+{
+  return m->display_version[0] ? m->display_version : m->version;
+}
+
 int ver_compare(u32 ams, u32 als, u32 bms, u32 bls)
 {
   if (ams != bms) return ams < bms ? -1 : 1;
@@ -297,7 +302,7 @@ static const char* const g_secname[S_COUNT] = { "", "Product", "Files", "Shortcu
 
 enum {
   K_ID, K_NAME, K_VERSION, K_PUBLISHER, K_MAINEXE, K_FOLDER, K_DESC, K_README, K_LICENSE, K_AGREE, K_RUN, K_RUNARGS,
-  K_WCLASS, K_WTITLE, K_UNINST, K_DATANAME, K_LOGNAME, K_URL,
+  K_WCLASS, K_WTITLE, K_UNINST, K_DATANAME, K_LOGNAME, K_URL, K_DVERSION,
   K_SOURCE, K_FILE, K_KEEP, K_EXCLUDE, K_USERDATA, K_GENERATED,
   K_STARTMENU, K_DESKTOP, K_GROUP, K_LINK, K_DLINK,
   K_DX, K_WIN,
@@ -321,6 +326,7 @@ static const KeyDef g_keys[K_COUNT] = {
   { S_PRODUCT, "LicenseAgree", 0, 0 }, { S_PRODUCT, "Run", 0, 0 }, { S_PRODUCT, "RunArgs", 0, 0 },
   { S_PRODUCT, "WindowClass", 0, 0 }, { S_PRODUCT, "WindowTitle", 0, 0 }, { S_PRODUCT, "Uninstaller", 0, 0 },
   { S_PRODUCT, "DataName", 0, 0 }, { S_PRODUCT, "LogName", 0, 0 }, { S_PRODUCT, "URL", 0, 0 },
+  { S_PRODUCT, "DisplayVersion", 0, 0 },
   { S_FILES, "Source", 1, 1 }, { S_FILES, "File", 1, 1 }, { S_FILES, "Keep", 1, 1 }, { S_FILES, "Exclude", 1, 1 },
   { S_FILES, "UserData", 1, 0 }, { S_FILES, "Generated", 1, 0 },
   { S_SHORTCUTS, "StartMenu", 0, 0 }, { S_SHORTCUTS, "Desktop", 0, 0 }, { S_SHORTCUTS, "Group", 0, 0 },
@@ -603,6 +609,14 @@ static int do_key(Parser* p, int sec, char* key, char* val)
     if (e) return failk(p, key, e);
     if (strlen(val) > 400) return failk(p, key, "too long for the Welcome page (at most 400 characters)");
     return set_str(p, key, m->description, M_TEXT, val);
+  }
+  case K_DVERSION: {
+    const char* c;
+    if (!val[0]) return failk(p, key, "must not be empty (leave the key out to show Version)");
+    for (c = val; *c; c++)
+      if ((unsigned char)*c < 32 || (unsigned char)*c > 126) return failk(p, key, "plain ASCII text only (like 1.2 RC2)");
+    if (strlen(val) > 40) return failk(p, key, "too long (at most 40 characters)");
+    return set_str(p, key, m->display_version, (int)sizeof(m->display_version), val);
   }
   case K_AGREE: e = check_bool(val, &m->license_agree); break;
   case K_RUN: e = check_bool(val, &m->run); break;
@@ -939,6 +953,7 @@ u32 manifest_write(const Manifest* m, char* out, u32 cap)
   w_kv(&w, "Id", m->id);
   w_kv(&w, "Name", m->name);
   w_kv(&w, "Version", m->version);
+  if (m->display_version[0]) w_kv(&w, "DisplayVersion", m->display_version);
   if (m->publisher[0]) w_kv(&w, "Publisher", m->publisher);
   w_kv(&w, "MainExe", m->mainexe);
   w_kv(&w, "Folder", m->folder);

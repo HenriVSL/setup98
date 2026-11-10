@@ -66,6 +66,9 @@ void detect_install(InstallInfo* ii)
   }
   if (ii->have_ver) ver_format(ii->ms, ii->ls, ii->ver);
   else s_copy(ii->ver, sizeof(ii->ver), "?");
+  // shown version of the installed copy (Setup98 1.1+ stores DisplayVersion); 1.0 installs show the numeric one
+  if (ii->have_ver && reg_get(HKEY_LOCAL_MACHINE, key, "DisplayVersion", v, sizeof(v)) == 1 && v[0])
+    s_copy(ii->ver, sizeof(ii->ver), v);
 }
 
 void opts_default_types(Opts* o)
@@ -625,7 +628,7 @@ int inst_run(const Opts* o, ProgressFn fn, void* ctx, char* err, int errcap)
   key_app(key);
   key_uninst(ukey);
   m_record_name(&g_m, recname);
-  slog("install %s %s into %s (start menu %d, desktop %d, context menu %d)", g_m.name, g_m.version, o->dir,
+  slog("install %s %s into %s (start menu %d, desktop %d, context menu %d)", g_m.name, m_shown_version(&g_m), o->dir,
        o->startmenu, o->desktop, o->context);
 
   step(fn, ctx, 2, "Creating the folder...");
@@ -792,6 +795,8 @@ int inst_run(const Opts* o, ProgressFn fn, void* ctx, char* err, int errcap)
     ok = reg_set(HKEY_LOCAL_MACHINE, key, "InstallDir", o->dir) && reg_set(HKEY_LOCAL_MACHINE, key, "Version", g_m.version) &&
          reg_set_dw(HKEY_LOCAL_MACHINE, key, "StartMenu", (DWORD)o->startmenu) &&
          reg_set_dw(HKEY_LOCAL_MACHINE, key, "Desktop", (DWORD)o->desktop);
+    if (ok && g_m.display_version[0]) ok = reg_set(HKEY_LOCAL_MACHINE, key, "DisplayVersion", g_m.display_version);
+    else reg_del_value(HKEY_LOCAL_MACHINE, key, "DisplayVersion");          // an RC's text must not outlive it
     if (ok && fits) ok = reg_set(HKEY_LOCAL_MACHINE, key, "Files", files);    // Pica 1.0 compatible list
     else reg_del_value(HKEY_LOCAL_MACHINE, key, "Files");
     if (ok && g_m.has_types) {
@@ -840,9 +845,9 @@ int inst_run(const Opts* o, ProgressFn fn, void* ctx, char* err, int errcap)
     s_copy(q, sizeof(q), "\"");
     s_cat(q, sizeof(q), path);
     s_cat(q, sizeof(q), "\"");
-    wsprintfA(dn, "%s %s", g_m.name, g_m.version);
+    wsprintfA(dn, "%s %s", g_m.name, m_shown_version(&g_m));
     ok = reg_set(HKEY_LOCAL_MACHINE, ukey, "DisplayName", dn) &&
-         reg_set(HKEY_LOCAL_MACHINE, ukey, "DisplayVersion", g_m.version) &&
+         reg_set(HKEY_LOCAL_MACHINE, ukey, "DisplayVersion", m_shown_version(&g_m)) &&
          reg_set(HKEY_LOCAL_MACHINE, ukey, "UninstallString", q) &&
          reg_set(HKEY_LOCAL_MACHINE, ukey, "InstallLocation", o->dir);
     p_join(o->dir, g_m.mainexe, q, sizeof(q));

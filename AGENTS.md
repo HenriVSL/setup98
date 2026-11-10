@@ -9,7 +9,7 @@ You own a Win98 project in `~/Documents/86box/Shared/dev/<project>/` and want a 
 Copy `examples/hello.ini` (minimal) or `examples/retrostrike.ini` (game) to e.g. `dev/<project>/dist/<project>-setup.ini`
 and edit it. All paths in it are relative to the manifest's folder:
 - `[Product]` `Id` (never change it later), `Name`, `Version` (or `from:<exe>` if your exe has a version resource),
-  `MainExe`, and for a game `WindowClass=<your RegisterClass name>` so Setup won't replace files while it runs.
+  `MainExe`; for a release candidate add `DisplayVersion=1.2 RC2` with `Version=1.1.99.2` (numbers decide upgrades), and for a game `WindowClass=<your RegisterClass name>` so Setup won't replace files while it runs.
 - `[Files]` `Source=` your staged release folder, `File=` per pattern (`art\*.bmp`, `data\**`), `Keep=` for default
   config files, `UserData=` for everything the game writes (saves, ini, logs), never shipped.
 - `[Shortcuts]` `Group=`, `Link=Name | exe | args=-window`. `[Requires] DirectX=6`. `[Pack] OutFile=`.

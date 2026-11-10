@@ -59,6 +59,7 @@ struct Manifest {
   char id[41];
   char name[M_NAME];
   char version[32];
+  char display_version[41];    // optional free text shown instead of version ("1.2 RC2"); comparisons use version
   char version_from[M_PATH];   // pack98: Version=from:<file> (resolved into version)
   u32 ver_ms, ver_ls;
   char publisher[M_NAME];
@@ -125,6 +126,7 @@ u32 manifest_write(const Manifest* m, char* out, u32 cap);
 // versions
 int ver_parse(const char* s, u32* ms, u32* ls);           // "1.2.3" -> 1; 0 if malformed
 void ver_format(u32 ms, u32 ls, char* out);               // "1.0", "1.2.3", "1.2.3.4" (out >= 24 bytes)
+const char* m_shown_version(const Manifest* m);           // DisplayVersion if set, else Version
 int ver_compare(u32 ams, u32 als, u32 bms, u32 bls);
 int find_fixed_version(const u8* exe, u32 n, u32* ms, u32* ls);   // VS_FIXEDFILEINFO file version
 
